@@ -1,0 +1,16 @@
+# Secrets — never commit (keyless loop needs none, but guard anyway)
+.env
+.env.*
+
+# Raw engine output and logs (regenerated each run)
+raw/
+logs/
+__pycache__/
+*.pyc
+
+# Keep the digests/ folder but not its generated briefs
+digests/*.html
+
+# KPI: keep the data (kpi.jsonl) as the cumulative source of truth; the
+# dashboard is regenerated from it.
+metrics/dashboard.html

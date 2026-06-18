@@ -1,0 +1,3 @@
+# Vendored keyless engine — pure Python stdlib, no pip packages required.
+# (Python 3.12+. YouTube source uses the external `yt-dlp` binary, installed
+#  separately and on PATH — it is not a Python dependency of this engine.)

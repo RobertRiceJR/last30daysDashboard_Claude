@@ -1,0 +1,34 @@
+# Daily Research Loop topics.
+# Three streams aligned to the AI-QE executive briefing (June 2026):
+#   ai             -> general stack awareness (3)
+#   framework_arch -> the 3 architecture directions: RAG / self-healing / agentic (4)
+#   prod_support   -> production-support agents, to benchmark the IGS prod-support skill (4)
+# 11 topics total. exec_kpis dropped (revisit when you want the metrics feed).
+# Schema: streams -> <name> -> { enabled: bool, label: str, topics: [str, ...] }
+
+streams:
+  ai:
+    enabled: true
+    label: "AI / my stack"
+    topics:
+      - "Claude Code skills"
+      - "agentic QA testing"
+      - "LLM evals"
+
+  framework_arch:
+    enabled: true
+    label: "Framework architecture (briefing directions A-C)"
+    topics:
+      - "RAG test case generation"
+      - "self-healing test automation Playwright"
+      - "autonomous test failure triage"
+      - "risk-based test selection AI"
+
+  prod_support:
+    enabled: true
+    label: "Production support agents"
+    topics:
+      - "AI incident response agent"
+      - "LLM root cause analysis production"
+      - "AI bug triage automation"
+      - "AIOps on-call SRE copilot"

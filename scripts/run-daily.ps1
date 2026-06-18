@@ -1,0 +1,43 @@
+# Task Scheduler-friendly launcher for the Daily Research Loop.
+# v0: run this MANUALLY. Scheduling is wired last (see README).
+#
+# Resolves a Python 3.12+ interpreter (the engine's hard requirement) without
+# depending on the current shell's PATH, then runs the orchestrator and logs.
+#
+# Manual run:   pwsh -File research-loop\scripts\run-daily.ps1 run
+#               pwsh -File research-loop\scripts\run-daily.ps1 validate
+$ErrorActionPreference = "Stop"
+
+$root = Split-Path -Parent $PSScriptRoot
+$orchestrator = Join-Path $root "src\orchestrator.py"
+
+# --- Resolve Python 3.12+ (baked path first, then discovery) ---------------
+$py = $null
+$candidates = @(
+  "C:\Users\terri\AppData\Local\Programs\Python\Python313\python.exe",
+  "C:\Users\terri\AppData\Local\Programs\Python\Python312\python.exe"
+)
+foreach ($c in $candidates) { if (Test-Path $c) { $py = $c; break } }
+if (-not $py) {
+  foreach ($name in @("python3.13", "python3.12", "py")) {
+    $cmd = Get-Command $name -ErrorAction SilentlyContinue
+    if ($cmd) { $py = $cmd.Source; break }
+  }
+}
+if (-not $py) { throw "No Python 3.12+ found. Install Python 3.13 and retry." }
+
+# --- Ensure gh is reachable so the engine's GitHub source activates --------
+$ghDir = "C:\Program Files\GitHub CLI"
+if ((Test-Path $ghDir) -and ($env:PATH -notlike "*$ghDir*")) {
+  $env:PATH = "$ghDir;$env:PATH"
+}
+
+# --- Run + log -------------------------------------------------------------
+$logDir = Join-Path $root "logs"
+New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+$log = Join-Path $logDir ("run-" + (Get-Date -Format "yyyy-MM-dd") + ".log")
+
+$cmdArgs = if ($args.Count -gt 0) { $args } else { @("run") }
+Write-Output "[$(Get-Date -Format o)] launching: $py $orchestrator $cmdArgs" | Tee-Object -FilePath $log -Append
+& $py $orchestrator @cmdArgs 2>&1 | Tee-Object -FilePath $log -Append
+exit $LASTEXITCODE

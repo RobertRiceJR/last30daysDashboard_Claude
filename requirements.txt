@@ -1,0 +1,6 @@
+# v0 is intentionally dependency-free (stdlib only) so a fresh session or an
+# unattended scheduled run is never held up by a pip install step.
+#
+# The orchestrator parses config/topics.yaml with a tiny built-in reader and
+# shells out to the last30days engine (which manages its own deps) and the
+# `claude` CLI. Nothing to install here.
