@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Executive Brief — Open Knowledge Format (OKF): best-practice rankings</title>
+<style>
+:root{--bg:#0e0e10;--bg-elev:#18181b;--fg:#fafafa;--fg-muted:#a1a1aa;--fg-subtle:#71717a;
+--accent:#a855f7;--accent-soft:#c4b5fd;--good:#34d399;--warn:#fbbf24;--bad:#fb7185;
+--border:#27272a;--max-w:900px}
+@media (prefers-color-scheme:light){:root{--bg:#fff;--bg-elev:#fafafa;--fg:#18181b;
+--fg-muted:#52525b;--fg-subtle:#71717a;--accent:#7c3aed;--accent-soft:#6d28d9;--good:#059669;
+--warn:#b45309;--bad:#dc2626;--border:#e4e4e7}}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
+font-size:16.5px;line-height:1.65;-webkit-font-smoothing:antialiased}
+body{max-width:var(--max-w);margin:0 auto;padding:3.5rem 1.5rem 6rem}
+.badge{display:inline-block;padding:.4rem .85rem;margin-bottom:.9rem;background:var(--bg-elev);
+border:1px solid var(--border);border-radius:999px;font-family:ui-monospace,'Cascadia Code',Consolas,monospace;
+font-size:.78rem;color:var(--fg-muted)}
+.badge .accent{color:var(--accent)}
+h1{font-size:1.6rem;margin:.2rem 0 .4rem;letter-spacing:-.01em}
+.sub{color:var(--fg-subtle);font-size:.9rem;margin-bottom:2rem;
+font-family:ui-monospace,'Cascadia Code',Consolas,monospace}
+h2{font-size:1.2rem;margin:2.6rem 0 .5rem;padding-top:1.2rem;border-top:1px solid var(--border)}
+h3{font-size:1rem;margin:1.4rem 0 .3rem;color:var(--accent-soft)}
+p{margin:.5rem 0}ul{padding-left:1.15rem;margin:.4rem 0}li{margin:.45rem 0}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+a:hover{border-bottom-color:var(--accent)}
+strong{color:var(--fg);font-weight:600}em{color:var(--accent-soft);font-style:normal}
+.tldr{background:var(--bg-elev);border:1px solid var(--border);border-left:3px solid var(--accent);
+border-radius:10px;padding:1.1rem 1.3rem;margin:1.4rem 0}
+.tldr p{margin:.35rem 0}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.93rem}
+th,td{text-align:left;padding:.6rem .7rem;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--fg-subtle);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+td:first-child{color:var(--fg);font-weight:500;width:28%}
+.grade{font-weight:700;font-family:ui-monospace,Consolas,monospace;white-space:nowrap}
+.g{color:var(--good)}.w{color:var(--warn)}.b{color:var(--bad)}
+.score{font-family:ui-monospace,Consolas,monospace;color:var(--fg-muted);font-size:.85rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+.card{background:var(--bg-elev);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem}
+.card h3{margin-top:.2rem}
+.foot{margin-top:3.5rem;padding-top:1.3rem;border-top:1px solid var(--border);
+color:var(--fg-subtle);font-size:.8rem}
+@media(max-width:680px){.grid{grid-template-columns:1fr}td:first-child{width:auto}}
+</style></head><body>
+
+<div class="badge">📊 executive brief · <span class="accent">Open Knowledge Format (OKF)</span> · best-practice rankings · 2026-06-18</div>
+<h1>Open Knowledge Format — should you care, and how much?</h1>
+<div class="sub">Google Cloud, v0.1 · Apache-2.0 · markdown + YAML frontmatter knowledge bundles for AI agents</div>
+
+<div class="tldr">
+<p><strong>Bottom line:</strong> OKF formalizes the exact pattern you already run by hand — <strong>markdown + YAML-frontmatter knowledge trees that agents read and write</strong>. Your knowledge store, your memory files, and your prod-support incident KB are <em>proto-OKF today</em>. That makes this less a "new tech to evaluate" and more a "<strong>standard that just validated your architecture.</strong>"</p>
+<p><strong>Overall grade: B+ </strong>— exceptional on openness, simplicity, and strategic fit; weak on maturity, ecosystem, and governance (it's v0.1, Google-stewarded, no neutral standards body yet).</p>
+<p><strong>Recommendation:</strong> <em>adopt the conventions, not the vendor.</em> Align your existing markdown knowledge to OKF's shape (frontmatter schema, <code>index.md</code>, <code>log.md</code>, markdown-link graph) — it's cheap because you're 80% there — while staying independent of Google's Knowledge Catalog / ADK tooling until the ecosystem proves out.</p>
+</div>
+
+<h2>What it is (in one breath)</h2>
+<p>An open spec that says: represent your organizational knowledge as <strong>plain markdown files with YAML frontmatter</strong>, shippable in git, linkable into a graph, readable by a human with <code>cat</code> and by an LLM verbatim. One required field (<code>type</code>); everything else optional. The spec "fits on a single page." Reference tooling (an enrichment agent over BigQuery, a static HTML graph visualizer) is explicitly proof-of-concept. Authored by Google Cloud's Data Cloud team; published Apache-2.0 on GitHub.</p>
+
+<h2>Executive best-practice rankings</h2>
+<table>
+<tr><th>Dimension</th><th>Grade</th><th>Why</th></tr>
+<tr><td>Openness &amp; vendor-neutrality</td><td class="grade g">A−</td><td>Apache-2.0, public GitHub, "never require a proprietary account or SDK," "format not platform." Deduct: Google-stewarded, no neutral foundation yet.</td></tr>
+<tr><td>Interoperability &amp; lock-in risk</td><td class="grade g">A</td><td>Pure markdown + YAML + git. "If you can <code>cat</code> a file you can read it." Effectively zero lock-in — the lowest-risk integration posture there is.</td></tr>
+<tr><td>Simplicity &amp; adoption cost</td><td class="grade g">A</td><td>Spec on one page, one required field, fully incremental. You can emit OKF from existing docs without re-platforming.</td></tr>
+<tr><td>Strategic fit (your stack)</td><td class="grade g">A+</td><td>Your knowledge tree, memory files, and prod-support KB are already markdown+frontmatter graphs. OKF standardizes what you built ad-hoc — highest-leverage dimension for you.</td></tr>
+<tr><td>Maturity &amp; production-readiness</td><td class="grade w">C</td><td>v0.1, "a starting point, not a finished standard." Tooling is deliberately POC. Don't put a production dependency on it yet.</td></tr>
+<tr><td>Ecosystem &amp; momentum</td><td class="grade w">C+</td><td>Just launched; implementations are Google-only so far. But real press pickup and it codifies a pattern many already use — credible early signal, unproven adoption.</td></tr>
+<tr><td>Governance &amp; longevity</td><td class="grade w">C</td><td>Open and versioned for backward-compat, but single-vendor stewardship and no standards body. Risk of capture, drift, or quiet abandonment. Watch who else adopts.</td></tr>
+</table>
+<p class="score">Composite: openness/simplicity/fit carry it; maturity/governance hold it back. <strong>B+</strong> as a <em>standard to align toward</em>; <strong>C</strong> as a <em>production platform to depend on today</em>.</p>
+
+<h2>Why this maps onto what you already have</h2>
+<div class="grid">
+<div class="card"><h3>🗂️ Your knowledge store</h3>
+<p><code>_shared/knowledge/</code> is domain nodes in markdown with <code>&gt; Source:</code> headers and See-also links — that's OKF concepts + frontmatter + a link-graph, minus the YAML shape. An OKF pass would mostly be formalizing headers into frontmatter.</p></div>
+<div class="card"><h3>🧠 Your memory files</h3>
+<p>Memory entries already carry <code>name / description / metadata</code> frontmatter + <code>[[links]]</code>. That is an OKF concept document in all but field names. Near-zero migration.</p></div>
+<div class="card"><h3>🛟 Prod-support incident KB</h3>
+<p>Asset-keyed markdown, appended incident history, a <code>00-index.md</code> — OKF gives this an exact vocabulary: concepts + <code>index.md</code> (progressive disclosure) + <code>log.md</code> (change history).</p></div>
+<div class="card"><h3>📰 This research loop</h3>
+<p>Digests + synthesis sidecars could be emitted as OKF concepts, making each day's findings an agent-readable, linkable knowledge artifact rather than just HTML.</p></div>
+</div>
+
+<h2>What to do</h2>
+<ul>
+<li><strong>Adopt the conventions now (low-risk):</strong> standardize frontmatter across the knowledge store + memory toward OKF's shape; add <code>index.md</code> / <code>log.md</code> where you already have indexes and change logs. You gain interop optionality for ~free.</li>
+<li><strong>Stay tooling-independent:</strong> don't wire into Google's Knowledge Catalog / ADK to consume it — keep your own markdown pipeline. The <em>format</em> is the value; the vendor tooling is v0.1 POC.</li>
+<li><strong>Track maturation:</strong> watch for a neutral governance home and non-Google adopters before treating OKF as a stable dependency. (Now tracked in the research loop — see below.)</li>
+<li><strong>Don't rip-and-replace:</strong> this is alignment, not migration. Your architecture was right; OKF is the receipt.</li>
+</ul>
+
+<div class="foot">Sources:
+<a href="https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing">Google Cloud blog</a> ·
+<a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md">OKF SPEC.md</a> ·
+<a href="https://github.com/GoogleCloudPlatform/knowledge-catalog">knowledge-catalog repo (Apache-2.0)</a> ·
+<a href="https://www.heise.de/en/news/Open-Knowledge-Format-AI-Knowledge-as-Markdown-Files-11332310.html">heise</a> ·
+<a href="https://www.searchenginejournal.com/google-cloud-announces-the-open-knowledge-format/579253/">Search Engine Journal</a>.
+Graded for an executive adopting a knowledge/data standard. Prepared 2026-06-18.</div>
+</body></html>
