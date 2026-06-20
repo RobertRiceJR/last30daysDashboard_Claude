@@ -42,21 +42,20 @@ Run `python src\orchestrator.py doctor` to confirm.
 
 ## Commands
 
-> **Use Python 3.13 explicitly** — bare `python` here is Anaconda 3.10, which the engine rejects.
-> Either prefix with the full path, or use `pwsh -File scripts\run-daily.ps1 run` (it resolves Python + gh):
-> ```powershell
-> & "C:\Users\terri\AppData\Local\Programs\Python\Python313\python.exe" src\orchestrator.py run
-> ```
+Use the **`run` wrapper** at the repo root — it resolves Python 3.13 (your bare `python` is Anaconda
+3.10, which the engine rejects) and forwards args. From the repo root in PowerShell, prefix with `.\`:
 
 ```powershell
-python src\orchestrator.py doctor                 # prereqs + active keyless sources
-python src\orchestrator.py validate               # RAW engine output for QE judgment
-python src\orchestrator.py run                     # research -> digest -> KPIs -> judge -> dashboard
-python src\orchestrator.py run --no-judge          # skip the quality scorer
-python src\orchestrator.py judge --date 2026-06-18 # re-score a day's digest only
-python src\orchestrator.py kpi --backfill          # rebuild dashboard (seed from existing digests)
-python src\orchestrator.py rerender                # re-emit digests after a style change
+.\run doctor                 # prereqs + active keyless sources
+.\run validate               # RAW engine output for QE judgment
+.\run run                    # research -> digest -> KPIs -> judge -> dashboard
+.\run run --no-judge         # skip the quality scorer
+.\run judge --date 2026-06-20 # re-score a day's digest only
+.\run kpi --backfill         # rebuild dashboard (seed from existing digests)
+.\run rerender               # re-emit digests after a style change
 ```
+
+> For unattended/scheduled runs use `pwsh -File scripts\run-daily.ps1 run` (resolves Python + gh, logs).
 
 Each `run` writes `digests/YYYY-MM-DD.html`, appends a row to `metrics/kpi.jsonl`, and rebuilds
 `metrics/dashboard.html`.
