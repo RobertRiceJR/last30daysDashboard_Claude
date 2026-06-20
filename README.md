@@ -41,6 +41,12 @@ Run `python src\orchestrator.py doctor` to confirm.
 
 ## Commands
 
+> **Use Python 3.13 explicitly** — bare `python` here is Anaconda 3.10, which the engine rejects.
+> Either prefix with the full path, or use `pwsh -File scripts\run-daily.ps1 run` (it resolves Python + gh):
+> ```powershell
+> & "C:\Users\terri\AppData\Local\Programs\Python\Python313\python.exe" src\orchestrator.py run
+> ```
+
 ```powershell
 python src\orchestrator.py doctor                 # prereqs + active keyless sources
 python src\orchestrator.py validate               # RAW engine output for QE judgment
