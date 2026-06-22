@@ -11,6 +11,9 @@ __pycache__/
 # Keep the digests/ folder but not its generated briefs
 digests/*.html
 
+# Tool due-diligence briefs (generated per tool by the `dd` command)
+briefs/*.html
+
 # KPI: keep the data (kpi.jsonl) as the cumulative source of truth; the
 # dashboard is regenerated from it.
 metrics/dashboard.html

@@ -108,6 +108,85 @@ def _bullets(md: str, points: dict | None = None) -> str:
     return "<ul>\n" + "\n".join(items) + "\n</ul>" if items else "<p>(no synthesis)</p>"
 
 
+def _verdict_line(md_line: str) -> str:
+    """Render the top '_Act or ignore:_ **Word** - reason' line as a colored chip."""
+    inner = _inline(md_line)
+    return f'<div class="verdict">{inner}</div>'
+
+
+def render_brief(tool: str, sections_md: str, sources: list[str],
+                 meta: dict | None = None, points: dict | None = None) -> str:
+    """Render a standalone due-diligence brief: verdict + 4 `## ` sections + footer.
+
+    sections_md is the markdown from duediligence.synthesize_dd. Reuses the same
+    CSS, inline-link, and verdict-color helpers as the daily digest so briefs
+    match the dashboard look. Self-contained dark-mode HTML.
+    """
+    meta = meta or {}
+    date_str = meta.get("date", "")
+    lines = sections_md.splitlines()
+    verdict_html = ""
+    footer_md: list[str] = []
+    section_lines: list[str] = []
+    in_footer = False
+    for ln in lines:
+        stripped = ln.strip()
+        if stripped.startswith("---") or stripped.startswith("✅"):
+            in_footer = True
+        if in_footer:
+            footer_md.append(ln)
+            continue
+        if not verdict_html and stripped.lower().startswith("_act or ignore:"):
+            verdict_html = _verdict_line(stripped)
+            continue
+        section_lines.append(ln)
+
+    # Split the remaining body into `## ` sections, render each with _bullets().
+    body: list[str] = []
+    cur_title: str | None = None
+    buf: list[str] = []
+
+    def _flush() -> None:
+        if cur_title is not None:
+            body.append(f"<h2>{html.escape(cur_title)}</h2>\n{_bullets(chr(10).join(buf), points)}")
+
+    for ln in section_lines:
+        if ln.lstrip().startswith("## "):
+            _flush()
+            cur_title = ln.lstrip()[3:].strip()
+            buf = []
+        elif ln.lstrip().startswith("# "):
+            continue  # drop any stray H1; the badge is the title
+        else:
+            buf.append(ln)
+    _flush()
+
+    footer_html = ""
+    if footer_md:
+        clean = "\n".join(l for l in footer_md if l.strip() and not l.strip().startswith("---"))
+        if clean.strip():
+            footer_html = f'<pre class="tree">{html.escape(clean)}</pre>'
+
+    return f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tool Due-Diligence - {html.escape(tool)}</title>
+<style>{CSS}
+.verdict{{font-size:1.05rem;margin:.5rem 0 2rem;padding:.75rem 1rem;background:var(--bg-elev);
+border:1px solid var(--border);border-radius:10px}}
+.tree{{margin-top:2.5rem;padding:1rem;background:var(--bg-elev);border:1px solid var(--border);
+border-radius:10px;color:var(--fg-muted);font-family:ui-monospace,'Cascadia Code',Consolas,monospace;
+font-size:.8rem;white-space:pre-wrap;overflow-x:auto}}</style></head><body>
+<div class="badge">🔎 tool due-diligence · <span class="accent">{html.escape(tool)}</span></div>
+<div class="meta">last 30 days · keyless sources: {html.escape(', '.join(sources))} · synthesized via Claude Code{(' · ' + html.escape(date_str)) if date_str else ''}</div>
+{verdict_html}
+{chr(10).join(body)}
+{footer_html}
+<div class="foot">Tool due-diligence brief over the last30days engine. Keyless sources only
+(Reddit, Hacker News, Polymarket, GitHub, YouTube). Re-run: <code>python src/orchestrator.py dd "{html.escape(tool)}"</code>.</div>
+</body></html>"""
+
+
 def render(date_str: str, sections: list[dict], sources: list[str], points: dict | None = None) -> str:
     body = []
     for sec in sections:

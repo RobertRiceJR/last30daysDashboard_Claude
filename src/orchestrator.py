@@ -68,6 +68,7 @@ for _s in (sys.stdout, sys.stderr):
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG = ROOT / "config" / "topics.yaml"
 DIGESTS = ROOT / "digests"
+BRIEFS = ROOT / "briefs"
 RAW = ROOT / "raw"
 
 
@@ -290,9 +291,14 @@ def generate_plan(topic: str, sources: list[str], raw_dir: Path) -> Path | None:
 
 def run_engine(
     py: str, env: dict, topic: str, sources: list[str], raw_dir: Path,
-    plan_path: Path | None = None,
+    plan_path: Path | None = None, extra_args: list[str] | None = None,
 ) -> str:
-    """Run the engine for one topic, keyless. Returns the markdown report."""
+    """Run the engine for one topic, keyless. Returns the markdown report.
+
+    extra_args appends extra engine CLI flags (e.g. keyless targeting hints
+    --subreddits / --github-repo for the `dd` command). These cannot unlock a
+    non-keyless source: the scrubbed env + EXCLUDE_SOURCES still gate retrieval.
+    """
     raw_dir.mkdir(parents=True, exist_ok=True)
     cmd = [
         py, str(ENGINE_SCRIPT), topic,
@@ -300,6 +306,8 @@ def run_engine(
         f"--search={','.join(sources)}",
         "--save-dir", str(raw_dir),
     ]
+    if extra_args:
+        cmd += extra_args
     if plan_path:
         # Plan present: default depth so the multiple sub-queries survive
         # (--quick would truncate the plan to a single sub-query).
@@ -569,6 +577,54 @@ def cmd_judge(args) -> int:
     return 0
 
 
+def cmd_dd(args) -> int:
+    """Tool due-diligence: research a tool's skill/MCP/integration story + sentiment.
+
+    Writes a standalone 4-section HTML brief per tool. --engine-only prints the
+    raw keyless engine evidence instead (the hook the tool-dd SKILL.md calls so
+    the hosting agent can merge in WebSearch-grounded facts itself).
+    """
+    import duediligence as dd  # lazy import keeps deps off the common path
+
+    py, env = resolve_python(), engine_env()
+    sources = available_sources(py, env)
+    configured = {t["name"].lower(): t for t in dd.load_tools()}
+
+    if getattr(args, "all", False):
+        tools = [t["name"] for t in dd.load_tools()]
+        if not tools:
+            sys.exit("No tools in config/tools.yaml (add one, or pass a name).")
+    elif args.tool:
+        tools = [args.tool]
+    else:
+        sys.exit("Pass a tool name (e.g. dd \"Azure App Insights\") or --all.")
+
+    print(f"Tool due-diligence — keyless sources: {', '.join(sources)}")
+    today = _dt.date.today().isoformat()
+    raw_dir = RAW / today
+    for tool in tools:
+        print(f"  - researching: {tool}")
+        hints = configured.get(tool.lower(), {})
+        raw_md = dd.research_tool(py, env, tool, sources, raw_dir, hints)
+        if getattr(args, "engine_only", False):
+            print(f"\n{'='*70}\nTOOL: {tool}  (raw keyless engine evidence)\n{'='*70}")
+            print(raw_md)
+            continue
+        print("    synthesizing 4-section brief...")
+        sections_md = dd.synthesize_dd(tool, raw_md)
+        (raw_dir / f"{_slug(tool)}-dd-synthesis.md").write_text(sections_md, encoding="utf-8")
+        from render_digest import render_brief  # lazy import
+        BRIEFS.mkdir(parents=True, exist_ok=True)
+        out = BRIEFS / f"{_slug(tool)}-{today}.html"
+        out.write_text(
+            render_brief(tool, sections_md, sources,
+                         meta={"date": today}, points=points_index(raw_md)),
+            encoding="utf-8",
+        )
+        print(f"    brief written: {out}")
+    return 0
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description="Daily Research Loop orchestrator (keyless).")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -584,10 +640,15 @@ def main() -> int:
     j = sub.add_parser("judge", help="Re-score a date's digest quality (3 cheap judges).")
     j.add_argument("--date", help="Date to judge (YYYY-MM-DD; default today).")
     j.add_argument("--tag", help="Digest tag, if any.")
+    d = sub.add_parser("dd", help="Tool due-diligence: skill/MCP/integration brief for a tool.")
+    d.add_argument("tool", nargs="?", help='Tool to research (e.g. "Azure App Insights").')
+    d.add_argument("--all", action="store_true", help="Research every tool in config/tools.yaml.")
+    d.add_argument("--engine-only", action="store_true",
+                   help="Print raw keyless engine evidence (skip synthesis/brief).")
     args = p.parse_args()
     return {
         "run": cmd_run, "validate": cmd_validate, "doctor": cmd_doctor,
-        "kpi": cmd_kpi, "rerender": cmd_rerender, "judge": cmd_judge,
+        "kpi": cmd_kpi, "rerender": cmd_rerender, "judge": cmd_judge, "dd": cmd_dd,
     }[args.cmd](args)
 
 

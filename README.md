@@ -29,8 +29,11 @@ src/
   metrics.py        KPI store + dashboard (CFD, trends, breakdowns, watch list, quality)
   judge.py          3 cheap Haiku judges (Relevance / Faithfulness / Actionability)
   trending.py       Top-10 trending AI GitHub repos this week (keyless)
+  duediligence.py   tool due-diligence: skill/MCP/integration brief per tool (dd command)
 config/topics.yaml  research streams + topics
-digests/  raw/  metrics/  (generated; gitignored except metrics/kpi.jsonl)
+config/tools.yaml   tool due-diligence targets (plug-and-play: add a name, run `dd`)
+skills/tool-dd/     portable SKILL.md wrapper (WebSearch-grounded due-diligence)
+digests/  briefs/  raw/  metrics/  (generated; gitignored except metrics/kpi.jsonl)
 ```
 
 ## Prerequisites (machine-verified)
@@ -57,7 +60,17 @@ Use the **`run` wrapper** at the repo root — it resolves Python 3.13 (your bar
 .\run judge --date 2026-06-20 # re-score a day's digest only
 .\run kpi --backfill         # rebuild dashboard (seed from existing digests)
 .\run rerender               # re-emit digests after a style change
+.\run dd "Azure App Insights" # tool due-diligence -> briefs/<slug>-<date>.html
+.\run dd --all               # due-diligence every tool in config/tools.yaml
+.\run dd "<tool>" --engine-only # raw keyless evidence (hook for the tool-dd skill)
 ```
+
+**Tool due-diligence** (`dd`): given a tool name, research whether a drop-in
+skill / MCP server / SDK exists, how to wire it, the gotchas + environment
+prereqs, how mature it is, and what the community says — as a shareable 4-section
+HTML brief. The baked-in command is keyless + autonomous; the portable
+[`skills/tool-dd`](skills/tool-dd/SKILL.md) wrapper adds WebSearch-grounded
+discovery for a materially richer Integration map.
 
 > For unattended/scheduled runs use `pwsh -File scripts\run-daily.ps1 run` (resolves Python + gh, logs).
 

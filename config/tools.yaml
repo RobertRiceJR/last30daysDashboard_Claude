@@ -1,0 +1,18 @@
+# Tool due-diligence targets.
+# PLUG-AND-PLAY: add a `- name:` block below, then run `.\run dd "<name>"`
+# (or `.\run dd --all` to sweep every tool here). Zero code changes needed.
+#
+# Schema: a top-level `tools:` list. Each block:
+#   name:          (required) the tool to research, exactly as you'd name it
+#   aliases:       comma-separated alternate names               (optional)
+#   subreddits:    comma-separated subreddit hints, no r/ prefix (optional)
+#   github_repos:  comma-separated owner/repo integration hints  (optional)
+#
+# Hints are optional — leave them off and the planner infers targeting. They
+# only sharpen retrieval (the keyless engine still self-plans either way).
+
+tools:
+  - name: "Azure Application Insights"
+    aliases: "App Insights, Azure Monitor APM"
+    subreddits: "Azure, devops, dotnet, sre"
+    github_repos: "microsoft/azure-skills, Azure/azure-mcp"
